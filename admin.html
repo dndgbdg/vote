@@ -3,16 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <title>관리자 페이지</title>
+  <style>
+    .result-block {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .name-button {
+      margin-right: 5px;
+    }
+  </style>
 </head>
 <body>
-  <h2>관리자 페이지</h2>
+  <h2>관리자 로그인</h2>
   <input type="password" id="password" placeholder="비밀번호 입력" />
   <button onclick="checkPassword()">접속</button>
 
   <div id="adminPanel" style="display:none;">
-    <button onclick="resetVotes()">투표 전체 초기화</button><br /><br />
-    <select id="deleteSelect"></select>
-    <button onclick="deleteVote()">선택 항목 제거</button>
+    <h3>실시간 결과 (삭제 가능)</h3>
+    <div id="results"></div>
+
+    <br />
+    <button onclick="resetVotes()">🧹 전체 투표 초기화</button>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
