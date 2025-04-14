@@ -1,4 +1,4 @@
-// 🔧 Firebase 설정 (자신의 프로젝트 정보로 교체)
+// 🔧 Firebase 설정 (이미 설정됨)
 const firebaseConfig = {
   apiKey: "AIzaSyBYGLHgGbyfInoSJD8Xh50F_wl71h1pNZs",
   authDomain: "vote-4e2da.firebaseapp.com",
@@ -13,7 +13,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const voteItems = Array.from({ length: 17 }, (_, i) => `투표${i + 1}`);
-let chart;
 
 // 투표 항목 select 박스에 추가
 window.addEventListener('DOMContentLoaded', () => {
@@ -37,8 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  drawChart();
-  setupRealtimeChart();
+  setupRealtimeTextResults();  // <-- 여기만 변경됨
 });
 
 // 투표 제출
@@ -60,47 +58,31 @@ if (form) {
   });
 }
 
-// 실시간 차트 갱신
-function setupRealtimeChart() {
+// ✅ 막대그래프 대신 실시간 텍스트 결과 출력
+function setupRealtimeTextResults() {
+  const resultsDiv = document.getElementById('results');
+  if (!resultsDiv) return;
+
   db.collection('votes').onSnapshot(snapshot => {
-    const counts = {};
-    voteItems.forEach(item => counts[item] = 0);
+    const grouped = {};
+    voteItems.forEach(item => grouped[item] = []);
     snapshot.forEach(doc => {
-      const { choice } = doc.data();
-      if (counts.hasOwnProperty(choice)) counts[choice]++;
+      const { name, choice } = doc.data();
+      if (grouped[choice]) grouped[choice].push(name);
     });
-    updateChart(counts);
+
+    resultsDiv.innerHTML = '';
+    voteItems.forEach(item => {
+      const names = grouped[item];
+      const block = document.createElement('div');
+      block.className = 'result-block';
+      block.innerHTML = `
+        <strong>${item} :</strong> ${names.join(', ') || ' '}<br />
+        (${names.length}명)
+      `;
+      resultsDiv.appendChild(block);
+    });
   });
-}
-
-// Chart.js 초기화
-function drawChart() {
-  const ctx = document.getElementById('voteChart');
-  if (!ctx) return;
-
-  chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: voteItems,
-      datasets: [{
-        label: '투표 수',
-        data: Array(voteItems.length).fill(0),
-        backgroundColor: 'rgba(54, 162, 235, 0.5)'
-      }]
-    },
-    options: {
-      scales: {
-        y: { beginAtZero: true, precision: 0 }
-      }
-    }
-  });
-}
-
-// Chart 데이터 갱신
-function updateChart(counts) {
-  if (!chart) return;
-  chart.data.datasets[0].data = voteItems.map(item => counts[item] || 0);
-  chart.update();
 }
 
 // 관리자 로그인
