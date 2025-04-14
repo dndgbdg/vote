@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>기명 투표</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .result-block {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
   <h2>기명 투표 (하나만 선택)</h2>
@@ -17,7 +23,7 @@
   </form>
 
   <h3>실시간 결과</h3>
-  <canvas id="voteChart" width="400" height="300"></canvas>
+  <div id="results"></div>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
