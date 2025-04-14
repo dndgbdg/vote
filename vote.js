@@ -1,4 +1,4 @@
-// 🔧 Firebase 설정 (이미 설정됨)
+// 🔧 Firebase 설정
 const firebaseConfig = {
   apiKey: "AIzaSyBYGLHgGbyfInoSJD8Xh50F_wl71h1pNZs",
   authDomain: "vote-4e2da.firebaseapp.com",
@@ -36,7 +36,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  setupRealtimeTextResults();  // <-- 여기만 변경됨
+  // 일반 사용자 페이지용 실시간 결과 표시
+  if (document.getElementById('results') && !document.getElementById('adminPanel')) {
+    setupRealtimeTextResults();
+  }
 });
 
 // 투표 제출
@@ -58,7 +61,7 @@ if (form) {
   });
 }
 
-// ✅ 막대그래프 대신 실시간 텍스트 결과 출력
+// ✅ 사용자 페이지: 실시간 텍스트 표
 function setupRealtimeTextResults() {
   const resultsDiv = document.getElementById('results');
   if (!resultsDiv) return;
@@ -85,17 +88,49 @@ function setupRealtimeTextResults() {
   });
 }
 
-// 관리자 로그인
+// ✅ 관리자 전용 결과 표시 (삭제 버튼 포함)
+function setupRealtimeAdminResults() {
+  const resultsDiv = document.getElementById('results');
+  if (!resultsDiv) return;
+
+  db.collection('votes').onSnapshot(snapshot => {
+    const grouped = {};
+    voteItems.forEach(item => grouped[item] = []);
+
+    snapshot.forEach(doc => {
+      const { name, choice } = doc.data();
+      if (grouped[choice]) grouped[choice].push(name);
+    });
+
+    resultsDiv.innerHTML = '';
+    voteItems.forEach(item => {
+      const names = grouped[item];
+      const blocks = names.map(name =>
+        `<span class="name-button">${name} 
+          <button data-name="${name}" data-choice="${item}">❌</button>
+        </span>`
+      ).join(', ');
+
+      const block = document.createElement('div');
+      block.className = 'result-block';
+      block.innerHTML = `<strong>${item} :</strong> ${blocks || ' '}<br />(${names.length}명)`;
+      resultsDiv.appendChild(block);
+    });
+  });
+}
+
+// ✅ 관리자 로그인
 function checkPassword() {
   const pw = document.getElementById('password').value;
   if (pw === "12344321") {
     document.getElementById('adminPanel').style.display = 'block';
+    setupRealtimeAdminResults(); // 관리자 표 출력 시작
   } else {
     alert("비밀번호가 틀렸습니다.");
   }
 }
 
-// 투표 초기화
+// ✅ 전체 투표 초기화
 async function resetVotes() {
   const confirmReset = confirm("모든 투표 데이터를 삭제할까요?");
   if (!confirmReset) return;
@@ -107,12 +142,30 @@ async function resetVotes() {
   alert("전체 투표가 초기화되었습니다.");
 }
 
-// 특정 항목 투표만 삭제
-async function deleteVote() {
-  const toDelete = document.getElementById('deleteSelect').value;
-  const snapshot = await db.collection('votes').where("choice", "==", toDelete).get();
+// ✅ 특정 항목의 이름 삭제
+async function deleteOneVote(name, choice) {
+  const snapshot = await db.collection('votes')
+    .where('name', '==', name)
+    .where('choice', '==', choice)
+    .get();
+
   const batch = db.batch();
   snapshot.forEach(doc => batch.delete(doc.ref));
   await batch.commit();
-  alert(`"${toDelete}" 항목의 투표가 삭제되었습니다.`);
 }
+
+// ✅ 삭제 버튼 클릭 이벤트 (이름별 삭제)
+document.addEventListener('click', function (e) {
+  if (
+    e.target.tagName === 'BUTTON' &&
+    e.target.dataset.name &&
+    e.target.dataset.choice
+  ) {
+    const name = e.target.dataset.name;
+    const choice = e.target.dataset.choice;
+    const confirmDelete = confirm(`${name}의 "${choice}" 투표를 삭제할까요?`);
+    if (confirmDelete) {
+      deleteOneVote(name, choice);
+    }
+  }
+});
