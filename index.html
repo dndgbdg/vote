@@ -35,152 +35,59 @@
       border-radius: 8px;
     }
 
-    .swiper-slide {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .swiper-slide img {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    .swiper-slide div {
-      margin-top: 0.5rem;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .lastSwiper .swiper-slide img {
-      width: 100%;
-      height: auto;
-      max-height: 400px;
-      object-fit: contain;
-      border-radius: 10px;
-    }
-
-    .lastSwiper .swiper-slide span {
-      margin-top: 0.3rem;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-
-    .review-carousel-wrapper { margin-top: 1.5rem; }
-
-    .review-swiper .swiper-slide {
-      background: #f0f0f0;
-      border-radius: 8px;
-      padding: 0.5rem;
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      flex-direction: column;
-      height: auto;
-      min-height: 80px;
-    }
-
-    .review-swiper .swiper-slide div:first-child {
-      font-weight: bold;
-    }
-
-    .review-author {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    .review-author span {
-      font-style: italic;
-    }
-
-    .map img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
-
-    .contact-links {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      gap: 2rem;
-      margin-top: 1rem;
-      flex-direction: row;
-    }
-
-    .contact-links a {
-      text-align: center;
-      text-decoration: none;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .contact-links a div {
-      text-decoration: none;
-    }
-
-    .contact-links img {
-      width: 60px;
-      height: 60px;
-      border-radius: 8px;
-      display: block;
-      margin: 0 auto 0.5rem;
-    }
-
-    footer {
-      background: #333;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      margin-top: 2rem;
-    }
-
-    .social a {
-      margin: 0 0.5rem;
-      color: white;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .game-popup {
+    .vote-popup {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      align-items: center;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
       justify-content: center;
+      align-items: center;
       z-index: 9999;
     }
 
-    .popup-content {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      text-align: center;
-      position: relative;
-      width: 80%;
-      max-width: 300px;
+    .vote-popup.active {
+      display: flex;
     }
 
-    .close-btn {
+    .vote-box {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .vote-box h2 {
+      margin-top: 0;
+    }
+
+    .vote-box button.close-btn {
       position: absolute;
-      top: 5px;
-      right: 10px;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
       font-size: 1.5rem;
       cursor: pointer;
+    }
+
+    .vote-result-block {
+      background: #f0f0f0;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+
+    .vote-result-block strong {
+      display: inline-block;
+      width: 100px;
+    }
+
+    .vote-result-block small {
+      color: #666;
     }
   </style>
 </head>
@@ -195,8 +102,26 @@
     <a href="#lastweek">지난 모임</a>
     <a href="#location">오시는 길</a>
     <a href="#contact">문의</a>
+    <a href="#" onclick="document.querySelector('.vote-popup').classList.add('active')">투표</a>
   </nav>
 
+  <!-- ✅ 투표 팝업 창 -->
+  <div class="vote-popup">
+    <div class="vote-box">
+      <button class="close-btn" onclick="document.querySelector('.vote-popup').classList.remove('active')">×</button>
+      <h2>참여자 투표</h2>
+      <form id="voteForm">
+        <label>닉네임: <input type="text" id="name" required /></label><br /><br />
+        <select id="choice" required>
+          <option value="">-- 투표 항목 선택 --</option>
+        </select><br /><br />
+        <button type="submit">투표하기</button>
+      </form>
+
+      <h3>실시간 결과</h3>
+      <div id="results"></div>
+    </div>
+  </div>
   <section id="about">
     <h2>모임 소개</h2>
     <pre>✅ 보드게임하고싶은데.. 같이 할사람이 없을때
@@ -216,6 +141,7 @@
     <p><strong>모임 시간:</strong> 매주 일요일 오후 1시 ~ 6시</p>
     <img src="./img/메뉴.jpg" alt="메뉴 이미지" style="width:100%; max-width:500px; border-radius:8px; margin-top:1rem;">
   </section>
+
   <section id="games">
     <h2>보유중인 게임들</h2>
     <div class="swiper mySwiper">
@@ -270,9 +196,80 @@
       <a href="https://open.kakao.com/o/gdRnjiah" target="_blank">KakaoTalk</a>
     </div>
   </footer>
-
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
   <script>
+    // ✅ Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYGLHgGbyfInoSJD8Xh50F_wl71h1pNZs",
+      authDomain: "vote-4e2da.firebaseapp.com",
+      projectId: "vote-4e2da",
+      storageBucket: "vote-4e2da.firebasestorage.app",
+      messagingSenderId: "408749919354",
+      appId: "1:408749919354:web:7a31ee10bc5fca28807fc3",
+      measurementId: "G-YHKYKNTJ5Q"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const voteItems = Array.from({ length: 17 }, (_, i) => `투표${i + 1}`);
+
+    // 투표 항목 select 박스 채우기
+    function populateVoteOptions() {
+      const select = document.getElementById('choice');
+      if (!select) return;
+      voteItems.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        select.appendChild(opt);
+      });
+    }
+
+    // 투표 제출
+    const form = document.getElementById('voteForm');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const choice = document.getElementById('choice').value;
+        if (!name || !choice) {
+          alert("닉네임과 항목을 입력하세요.");
+          return;
+        }
+        await db.collection('votes').add({ name, choice, timestamp: new Date() });
+        alert("투표 완료!");
+        form.reset();
+      });
+    }
+
+    // 실시간 결과 표 표시
+    function setupRealtimeResults() {
+      const resultsDiv = document.getElementById('results');
+      if (!resultsDiv) return;
+
+      db.collection('votes').onSnapshot(snapshot => {
+        const grouped = {};
+        voteItems.forEach(item => grouped[item] = []);
+        snapshot.forEach(doc => {
+          const { name, choice } = doc.data();
+          if (grouped[choice]) grouped[choice].push(name);
+        });
+
+        resultsDiv.innerHTML = '';
+        voteItems.forEach(item => {
+          const names = grouped[item];
+          const block = document.createElement('div');
+          block.className = 'vote-result-block';
+          block.innerHTML = `<strong>${item} :</strong> ${names.join(', ') || ' '}<br /><small>(${names.length}명)</small>`;
+          resultsDiv.appendChild(block);
+        });
+      });
+    }
+
+    // 게임 슬라이드 로드
     async function loadGamesFromCSV() {
       const response = await fetch('./게임종류.csv');
       const text = await response.text();
@@ -300,6 +297,7 @@
       });
     }
 
+    // 리뷰 슬라이드 로드
     async function loadReviewsFromCSV() {
       const response = await fetch('./리뷰.csv');
       const text = await response.text();
@@ -322,6 +320,7 @@
       });
     }
 
+    // 사진 슬라이드 로드
     async function loadPhotosFromCSV() {
       const response = await fetch('./참여자들사진.csv');
       const text = await response.text();
@@ -344,6 +343,7 @@
       });
     }
 
+    // 게임 클릭 시 팝업
     function showGameInfo(elem) {
       const name = elem.getAttribute('data-name');
       const players = elem.getAttribute('data-players');
@@ -364,10 +364,13 @@
       document.body.appendChild(popup);
     }
 
+    // 초기 실행
     window.addEventListener('DOMContentLoaded', () => {
       loadGamesFromCSV();
       loadReviewsFromCSV();
       loadPhotosFromCSV();
+      populateVoteOptions();
+      setupRealtimeResults();
 
       new Swiper(".mySwiper", {
         slidesPerView: 3,
