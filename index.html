@@ -2,31 +2,401 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>기명 투표</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보드게임 모임 홍보 페이지</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <style>
-    .result-block {
-      margin-bottom: 20px;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
+    html { scroll-behavior: smooth; }
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f5f5f5; color: #333; }
+    header img { width: 100%; max-height: 300px; object-fit: cover; }
+
+    nav {
+      background: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    nav a {
+      display: inline-block;
+      margin: 0.5rem 1rem;
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    section {
+      padding: 2rem 1rem;
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      margin-top: 2rem;
+      border-radius: 8px;
+    }
+
+    .swiper-slide {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .swiper-slide img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .swiper-slide div {
+      margin-top: 0.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .lastSwiper .swiper-slide img {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .lastSwiper .swiper-slide span {
+      margin-top: 0.3rem;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .review-carousel-wrapper { margin-top: 1.5rem; }
+
+    .review-swiper .swiper-slide {
+      background: #f0f0f0;
+      border-radius: 8px;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+      height: auto;
+      min-height: 80px;
+    }
+
+    .review-swiper .swiper-slide div:first-child {
+      font-weight: bold;
+    }
+
+    .review-author {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .review-author span {
+      font-style: italic;
+    }
+
+    .map img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 2rem;
+      margin-top: 1rem;
+      flex-direction: row;
+    }
+
+    .contact-links a {
+      text-align: center;
+      text-decoration: none;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .contact-links a div {
+      text-decoration: none;
+    }
+
+    .contact-links img {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto 0.5rem;
+    }
+
+    footer {
+      background: #333;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .social a {
+      margin: 0 0.5rem;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .game-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 1.5rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h2>기명 투표 (하나만 선택)</h2>
-  <form id="voteForm">
-    <label>닉네임: <input type="text" id="name" required /></label><br /><br />
-    <select id="choice" required>
-      <option value="">-- 투표 항목 선택 --</option>
-      <!-- JS에서 자동 삽입 -->
-    </select><br /><br />
-    <button type="submit">투표하기</button>
-  </form>
+  <header>
+    <img src="./img/배너.jpg" alt="일요일 보드게임 모임 배너">
+  </header>
 
-  <h3>실시간 결과</h3>
-  <div id="results"></div>
+  <nav>
+    <a href="#about">소개</a>
+    <a href="#games">보유 게임</a>
+    <a href="#lastweek">지난 모임</a>
+    <a href="#location">오시는 길</a>
+    <a href="#contact">문의</a>
+  </nav>
 
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-  <script src="vote.js"></script>
+  <section id="about">
+    <h2>모임 소개</h2>
+    <pre>✅ 보드게임하고싶은데.. 같이 할사람이 없을때
+(친구들이랑 보드게임카페가도 최대 4-5명🥲)
+
+✅ 새로운 보드게임도 해보고 싶은데 엄두가 안날때
+(여기선 호스트, 매니저가 모든 보드게임 다 설명해줍니다.)
+
+✅ 많은 사람들이랑 즐길수 있는 다인 게임 해보고 싶을때
+(호스트가 적절히 그룹 만들어주고 원하는 게임이 있을때면 인원맞춰줘요!)
+
+✅ 거기에 닌텐도, 포켓볼도 덤으로 하고싶다면?
+
+일요일 오후에 제 파티룸에서 같이
+닌텐도&보드게임&포켓볼 하실분들을 모집합니다✨️
+</pre>
+    <p><strong>모임 시간:</strong> 매주 일요일 오후 1시 ~ 6시</p>
+    <img src="./img/메뉴.jpg" alt="메뉴 이미지" style="width:100%; max-width:500px; border-radius:8px; margin-top:1rem;">
+  </section>
+  <section id="games">
+    <h2>보유중인 게임들</h2>
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </section>
+
+  <section id="lastweek">
+    <h2>지난주 참여자 및 사진</h2>
+    <div class="swiper lastSwiper">
+      <div class="swiper-wrapper"></div>
+    </div>
+    <div class="review-carousel-wrapper">
+      <div class="swiper review-swiper">
+        <div class="swiper-wrapper"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="location">
+    <h2>오시는 길</h2>
+    <p>서울시 광진구 화양동 16-37 (건대입구역 도보 7분)</p>
+    <div class="map">
+      <img src="./img/지도.jpg" alt="오시는 길 지도 이미지" />
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>예약 및 문의</h2>
+    <div class="contact-links">
+      <a href="https://munto.page.link/N4ac" target="_blank">
+        <img src="./img/icon/문토.jpg" alt="문토">
+        <div>Munto</div>
+      </a>
+      <a href="https://www.instagram.com/ku_partyroom?igsh=MWwxdTVrdXRocW5qcQ%3D%3D" target="_blank">
+        <img src="./img/icon/인스타.jpg" alt="Instagram">
+        <div>Instagram</div>
+      </a>
+      <a href="https://open.kakao.com/o/gdRnjiah" target="_blank">
+        <img src="./img/icon/카카오톡.jpg" alt="카카오톡">
+        <div>KakaoTalk</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 일요일 보드게임 모임</p>
+    <div class="social">
+      <a href="https://www.instagram.com/ku_partyroom?igsh=MWwxdTVrdXRocW5qcQ%3D%3D" target="_blank">Instagram</a>
+      <a href="https://open.kakao.com/o/gdRnjiah" target="_blank">KakaoTalk</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    async function loadGamesFromCSV() {
+      const response = await fetch('./게임종류.csv');
+      const text = await response.text();
+      const rows = text.trim().split('\n');
+      const gameData = rows.slice(1).map(row => {
+        const [name, players, recommended, genre] = row.split(',');
+        return { name, players, recommended, genre };
+      });
+
+      const wrapper = document.querySelector('.mySwiper .swiper-wrapper');
+      wrapper.innerHTML = '';
+      gameData.forEach(game => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        slide.setAttribute('onclick', 'showGameInfo(this)');
+        slide.setAttribute('data-name', game.name);
+        slide.setAttribute('data-players', game.players);
+        slide.setAttribute('data-recommended', game.recommended);
+        slide.setAttribute('data-genre', game.genre);
+        slide.innerHTML = `
+          <img src="./img/game/${game.name}.jpg" alt="${game.name}">
+          <div>${game.name}</div>
+        `;
+        wrapper.appendChild(slide);
+      });
+    }
+
+    async function loadReviewsFromCSV() {
+      const response = await fetch('./리뷰.csv');
+      const text = await response.text();
+      const rows = text.trim().split('\n');
+      const reviews = rows.slice(1).map(row => {
+        const [name, , ...contentParts] = row.split(',');
+        return { name, content: contentParts.join(',') };
+      });
+
+      const wrapper = document.querySelector('.review-swiper .swiper-wrapper');
+      wrapper.innerHTML = '';
+      reviews.forEach(r => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        slide.innerHTML = `
+          <div>${r.content}</div>
+          <div class="review-author">${r.name}</div>
+        `;
+        wrapper.appendChild(slide);
+      });
+    }
+
+    async function loadPhotosFromCSV() {
+      const response = await fetch('./참여자들사진.csv');
+      const text = await response.text();
+      const rows = text.trim().split('\n');
+      const photos = rows.slice(1).map(row => {
+        const [filename, caption] = row.split(',');
+        return { filename, caption };
+      });
+
+      const wrapper = document.querySelector('.lastSwiper .swiper-wrapper');
+      wrapper.innerHTML = '';
+      photos.forEach(p => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        slide.innerHTML = `
+          <img src="./img/review/${p.filename}" alt="${p.caption}">
+          <span>${p.caption}</span>
+        `;
+        wrapper.appendChild(slide);
+      });
+    }
+
+    function showGameInfo(elem) {
+      const name = elem.getAttribute('data-name');
+      const players = elem.getAttribute('data-players');
+      const recommended = elem.getAttribute('data-recommended');
+      const genre = elem.getAttribute('data-genre');
+
+      const popup = document.createElement('div');
+      popup.className = 'game-popup';
+      popup.innerHTML = `
+        <div class="popup-content">
+          <span class="close-btn" onclick="this.parentElement.parentElement.remove();">&times;</span>
+          <h3>${name}</h3>
+          <p><strong>인원:</strong> ${players}</p>
+          <p><strong>추천 인원:</strong> ${recommended}</p>
+          <p><strong>장르:</strong> ${genre}</p>
+        </div>
+      `;
+      document.body.appendChild(popup);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadGamesFromCSV();
+      loadReviewsFromCSV();
+      loadPhotosFromCSV();
+
+      new Swiper(".mySwiper", {
+        slidesPerView: 3,
+        spaceBetween: 10,
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev"
+        },
+        loop: true
+      });
+
+      new Swiper(".lastSwiper", {
+        slidesPerView: 1,
+        loop: true,
+        autoplay: { delay: 3000 },
+        effect: 'fade',
+        fadeEffect: { crossFade: true }
+      });
+
+      new Swiper(".review-swiper", {
+        slidesPerView: 3,
+        spaceBetween: 10,
+        loop: true,
+        autoplay: {
+          delay: 3000,
+          disableOnInteraction: false
+        }
+      });
+    });
+  </script>
 </body>
 </html>
