@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>관리자 페이지</title>
+</head>
+<body>
+  <h2>관리자 페이지</h2>
+  <input type="password" id="password" placeholder="비밀번호 입력" />
+  <button onclick="checkPassword()">접속</button>
+
+  <div id="adminPanel" style="display:none;">
+    <button onclick="resetVotes()">투표 전체 초기화</button><br /><br />
+    <select id="deleteSelect"></select>
+    <button onclick="deleteVote()">선택 항목 제거</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="vote.js"></script>
+</body>
+</html>
