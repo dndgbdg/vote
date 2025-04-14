@@ -108,19 +108,30 @@
   <!-- ✅ 투표 팝업 창 -->
   <div class="vote-popup">
     <div class="vote-box">
-      <button class="close-btn" onclick="document.querySelector('.vote-popup').classList.remove('active')">×</button>
-      <h2>참여자 투표</h2>
-      <form id="voteForm">
-        <label>닉네임: <input type="text" id="name" required /></label><br /><br />
-        <select id="choice" required>
-          <option value="">-- 투표 항목 선택 --</option>
-        </select><br /><br />
-        <button type="submit">투표하기</button>
-      </form>
+  <button class="close-btn" onclick="document.querySelector('.vote-popup').classList.remove('active')">×</button>
+  <h2 style="margin-bottom: 1rem;">참여자 투표</h2>
 
-      <h3>실시간 결과</h3>
-      <div id="results"></div>
-    </div>
+  <form id="voteForm" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <input type="text" id="name" placeholder="닉네임 입력" style="width: 90%; padding: 0.5rem;" required />
+    <select id="choice" style="width: 90%; padding: 0.5rem;" required>
+      <option value="">-- 투표 항목 선택 --</option>
+    </select>
+    <button type="submit" style="padding: 0.5rem 1rem;">투표하기</button>
+  </form>
+
+  <h3 style="margin-top: 2rem;">실시간 결과</h3>
+  <div id="results" style="
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 1rem;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    border-radius: 6px;
+    background: #f9f9f9;
+    font-size: 0.95rem;
+  "></div>
+</div>
+
   </div>
   <section id="about">
     <h2>모임 소개</h2>
